@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Food Waste - Biogas Company</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background-color: #7868e6;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .details-container {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .waste-details {
+            background-color: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .waste-images {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .waste-images img {
+            width: 100px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .waste-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .form-group {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4a47a3;
+            border-radius: 5px;
+            background-color: #16213e;
+            color: white;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #e63946;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #d62828;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            margin: 15% auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .arrow-left {
+            left: 10px;
+        }
+
+        .arrow-right {
+            right: 10px;
+        }
+
+        .lg {
+            background-color: #e63946;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            margin: 2px 20px;
+            cursor: pointer;
+        }
+        .lg:hover{
+            background-color: #d62828;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Book Food Waste</h1>
+        <div class="header-links">
+            <a href="cmpDashboard.html">Dashboard</a>
+            <button class="lg">Logout</button>
+        </div>
+    </div>
+
+    <div class="details-container">
+        <div class="waste-details">
+            <h2>Food Waste Details</h2>
+            <div class="waste-images">
+                <img src="waste-food.jpg" alt="Waste Image 1" onclick="openModal(); currentSlide(1)" />
+                <img src="waste-food3.jpg" alt="Waste Image 2" onclick="openModal(); currentSlide(2)" />
+                <img src="waste-food2.jpg" alt="Waste Image 3" onclick="openModal(); currentSlide(3)" />
+            </div>
+            <p><strong>Type:</strong> Vegetables</p>
+            <p><strong>Quantity:</strong> 200 kg</p>
+            <p><strong>Condition:</strong> Expired</p>
+            <p><strong>Expiry Date:</strong> October 18, 2024</p>
+            <p><strong>Description:</strong> These are mixed vegetable scraps from our kitchen.</p>
+            <p><strong>Storage Conditions:</strong> Refrigerated</p>
+        </div>
+
+        <form id="uploadForm" onsubmit="return false;">
+            <h2>Fill in the Booking Form</h2>
+            <div class="form-group">
+                <label for="quantityToBook">Quantity to Book (in kg)</label>
+                <input type="number" id="quantityToBook" min="1" max="200" step="0.1" required />
+                <small>Available: 200 kg</small>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Booking</button>
+        </form>
+    </div>
+
+    <!-- Modal for Image Gallery -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <span class="arrow arrow-left" onclick="plusSlides(-1)">&#10094;</span>
+        <span class="arrow arrow-right" onclick="plusSlides(1)">&#10095;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        let slideIndex = 1;
+
+        function openModal() {
+            document.getElementById("myModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function showSlides(n) {
+            const images = document.getElementsByClassName("waste-images")[0].getElementsByTagName("img");
+            if (n > images.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = images.length }
+            const modalImage = document.getElementById("modalImage");
+            modalImage.src = images[slideIndex - 1].src;
+        }
+    </script>
+</body>
+
+</html>

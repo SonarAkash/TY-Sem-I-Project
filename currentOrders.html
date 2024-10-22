@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Orders - Biogas Company Dashboard</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+            height: 100vh; /* Full height for centering */
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #7868e6;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        .order-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1; /* Allow the grid to grow and fill the page */
+        }
+        .order-card {
+            background-color: #16213e;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+        .order-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .order-content {
+            padding: 15px;
+        }
+        .order-category {
+            background-color: #4a47a3;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .order-title {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .order-details {
+            font-size: 0.9em;
+            color: #b3b3b3;
+            margin-bottom: 15px;
+        }
+        .order-status {
+            margin-top: auto;
+            font-size: 0.9em;
+            text-align: right;
+            padding: 10px;
+            background-color: #e63946;
+            color: white;
+            border-radius: 0 0 15px 15px;
+        }
+        .order-card:hover {
+            transform: scale(1.05); /* Scale effect on hover */
+        }
+
+        .lg {
+            background-color: #e63946;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            margin: 2px 20px;
+            cursor: pointer;
+        }
+        .lg:hover{
+            background-color: #d62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Current Orders</h1>
+        <div class="header-links">
+            <a href="cmpDashboard.html">Dashboard</a>
+            <button class="lg">Logout</button>
+        </div>
+    </div>
+
+    <div class="order-grid">
+        <div class="order-card">
+            <img src="path/to/vegetable-scraps.jpg" alt="Vegetable Scraps" class="order-image">
+            <div class="order-content">
+                <span class="order-category">Food Waste</span>
+                <h2 class="order-title">Vegetable Scraps</h2>
+                <p class="order-details">Order Date: October 20, 2024<br>Company: Fresh Farms<br>Quantity: 200 kg</p>
+                <div class="order-status">Status: Confirmed</div>
+            </div>
+        </div>
+        <div class="order-card">
+            <img src="path/to/fruit-peels.jpg" alt="Fruit Peels" class="order-image">
+            <div class="order-content">
+                <span class="order-category">Food Waste</span>
+                <h2 class="order-title">Fruit Peels</h2>
+                <p class="order-details">Order Date: October 18, 2024<br>Company: Green Gardens<br>Quantity: 150 kg</p>
+                <div class="order-status">Status: In Transit</div>
+            </div>
+        </div>
+        <div class="order-card">
+            <img src="path/to/expired-bread.jpg" alt="Expired Bread" class="order-image">
+            <div class="order-content">
+                <span class="order-category">Food Waste</span>
+                <h2 class="order-title">Expired Bread</h2>
+                <p class="order-details">Order Date: October 19, 2024<br>Company: Bakery Delight<br>Quantity: 100 kg</p>
+                <div class="order-status">Status: Delivered</div>
+            </div>
+        </div>
+        <div class="order-card">
+            <img src="path/to/meat-waste.jpg" alt="Meat Waste" class="order-image">
+            <div class="order-content">
+                <span class="order-category">Food Waste</span>
+                <h2 class="order-title">Meat Waste</h2>
+                <p class="order-details">Order Date: October 17, 2024<br>Company: Meat Masters<br>Quantity: 50 kg</p>
+                <div class="order-status">Status: Cancelled</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
