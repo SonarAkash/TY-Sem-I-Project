@@ -177,34 +177,29 @@
         <h1>Book Food Waste</h1>
         <div class="header-links">
             <a href="cmpDashboard.html">Dashboard</a>
-            <button class="lg">Logout</button>
+            <button class="lg" onclick="logout()">Logout</button>
         </div>
     </div>
 
     <div class="details-container">
         <div class="waste-details">
             <h2>Food Waste Details</h2>
-            <div class="waste-images">
-                <img src="waste-food.jpg" alt="Waste Image 1" onclick="openModal(); currentSlide(1)" />
-                <img src="waste-food3.jpg" alt="Waste Image 2" onclick="openModal(); currentSlide(2)" />
-                <img src="waste-food2.jpg" alt="Waste Image 3" onclick="openModal(); currentSlide(3)" />
-            </div>
-            <p><strong>Type:</strong> Vegetables</p>
-            <p><strong>Quantity:</strong> 200 kg</p>
-            <p><strong>Condition:</strong> Expired</p>
-            <p><strong>Expiry Date:</strong> October 18, 2024</p>
-            <p><strong>Description:</strong> These are mixed vegetable scraps from our kitchen.</p>
-            <p><strong>Storage Conditions:</strong> Refrigerated</p>
+            <div id="wasteImages" class="waste-images"></div> <!-- Container for images -->
+            <p id="type"><strong>Type:</strong></p>
+            <p id="quantity"><strong>Quantity:</strong></p>
+            <p id="condition"><strong>Condition:</strong></p>
+            <p id="expiryDate"><strong>Expiry Date:</strong></p>
+            <p id="description"><strong>Description:</strong></p>
+            <p id="storageConditions"><strong>Storage Conditions:</strong></p>
         </div>
 
-        <form id="uploadForm" onsubmit="return false;">
+        <form id="bookingForm" onsubmit="submitBooking(event)">
             <h2>Fill in the Booking Form</h2>
             <div class="form-group">
                 <label for="quantityToBook">Quantity to Book (in kg)</label>
-                <input type="number" id="quantityToBook" min="1" max="200" step="0.1" required />
-                <small>Available: 200 kg</small>
+                <input type="number" id="quantityToBook" min="1" required />
+                <small id="availableQuantity">Available: </small>
             </div>
-
             <button type="submit" class="submit-btn">Submit Booking</button>
         </form>
     </div>
@@ -218,32 +213,131 @@
     </div>
 
     <script>
-        let slideIndex = 1;
-
-        function openModal() {
-            document.getElementById("myModal").style.display = "block";
+        const token = localStorage.getItem("jwt"); // Assumes token is stored in local storage
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get("id");
+        const apiUrl = `http://localhost:8080/available-waste/${itemId}`;
+        console.log(apiUrl);
+        
+        async function fetchWasteDetails() {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    displayWasteDetails(data);
+                    await fetchAndDisplayImages(data.imagePaths, token); // Securely fetch and display images
+                } else {
+                    console.error('Failed to fetch waste details');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
 
-        function closeModal() {
-            document.getElementById("myModal").style.display = "none";
+        function displayWasteDetails(waste) {
+            document.getElementById("type").textContent = `Type: ${waste.type}`;
+            document.getElementById("quantity").textContent = `Quantity: ${waste.quantity} kg`;
+            document.getElementById("condition").textContent = `Condition: ${waste.wasteCondition}`;
+            document.getElementById("expiryDate").textContent = `Expiry Date: ${waste.expiryDate}`;
+            document.getElementById("description").textContent = `Description: ${waste.description}`;
+            document.getElementById("storageConditions").textContent = `Storage Conditions: ${waste.storageConditions}`;
+            document.getElementById("availableQuantity").textContent = `Available: ${waste.quantity} kg`;
         }
 
-        function currentSlide(n) {
-            showSlides(slideIndex = n);
+        async function fetchAndDisplayImages(imagePaths, token) {
+            const imageContainer = document.getElementById("wasteImages");
+
+            for (const [index, filename] of imagePaths.entries()) {
+                try {
+                    const imageResponse = await fetch(`http://localhost:8080/uploads/${filename}`, {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (imageResponse.ok) {
+                        const imageBlob = await imageResponse.blob();
+                        const imageUrl = URL.createObjectURL(imageBlob);
+
+                        const img = document.createElement("img");
+                        img.src = imageUrl;
+                        img.alt = `Waste Image ${index + 1}`;
+                        img.onclick = () => openModal(index + 1);
+                        imageContainer.appendChild(img);
+                    } else {
+                        console.error(`Failed to fetch image ${filename}:`, imageResponse.status);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching image ${filename}:`, error);
+                }
+            }
         }
 
-        function plusSlides(n) {
-            showSlides(slideIndex += n);
+        async function submitBooking(event) {
+            event.preventDefault();
+            const quantityToBook = document.getElementById("quantityToBook").value;
+
+            try {
+                const response = await fetch(`http://localhost:8080/bookWaste/${itemId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ quantity: quantityToBook })
+                });
+
+                if (response.ok) {
+                    alert("Booking successful!");
+                    window.location.href = "wasteList.html";
+                } else {
+                    alert("Failed to book waste. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error booking waste:", error);
+            }
         }
 
-        function showSlides(n) {
-            const images = document.getElementsByClassName("waste-images")[0].getElementsByTagName("img");
-            if (n > images.length) { slideIndex = 1 }
-            if (n < 1) { slideIndex = images.length }
-            const modalImage = document.getElementById("modalImage");
-            modalImage.src = images[slideIndex - 1].src;
+        function logout() {
+            localStorage.removeItem("jwt");
+            window.location.href = "login.html";
         }
+
+        /* Modal and Gallery Scripts */
+        // Modal and Gallery Scripts
+let slideIndex = 1;
+
+function openModal(startIndex) {
+    slideIndex = startIndex;
+    showSlides(slideIndex);
+    document.getElementById("myModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+}
+
+function plusSlides(n) {
+    showSlides(slideIndex += n);
+}
+
+function showSlides(n) {
+    const images = document.getElementById("wasteImages").getElementsByTagName("img");
+    if (n > images.length) { slideIndex = 1; }
+    if (n < 1) { slideIndex = images.length; }
+    
+    // Display the current image in the modal
+    const modalImage = document.getElementById("modalImage");
+    modalImage.src = images[slideIndex - 1].src;
+}
+
+
+        // Initialize on page load
+        fetchWasteDetails();
     </script>
 </body>
+
 
 </html>

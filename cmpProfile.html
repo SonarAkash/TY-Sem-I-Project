@@ -158,10 +158,6 @@
                     <input type="text" id="contact-person" placeholder="Enter contact person's name" required>
                 </div>
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" placeholder="Enter email address" required>
-                </div>
-                <div class="form-group">
                     <label for="phone">Phone Number:</label>
                     <input type="tel" id="phone" placeholder="Enter phone number" required>
                 </div>
@@ -173,6 +169,70 @@
             </form>
         </div>
     </div>
+
+    <script>
+        // Function to handle form submission
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent form from submitting the traditional way
+            console.log("Form Submitted");
+    
+            // Retrieve the JWT token from localStorage (or sessionStorage)
+            const token = localStorage.getItem('jwt'); // Assuming token is stored with the name "jwt"
+    
+            // If there's no token, redirect to login page
+            if (!token) {
+                alert('Please log in first');
+                window.location.href = 'login.html'; // Redirect to login page if no token
+                return;
+            }
+    
+            // Get form data
+            const companyName = document.getElementById('company-name').value;
+            const contactPerson = document.getElementById('contact-person').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+    
+            // Prepare the data to send to the backend
+            const requestData = {
+                name: companyName,
+                contactNumber: contactPerson,
+                phoneNumber: phone,
+                address: address
+            };
+    
+            // Send the data to the backend using fetch
+            fetch('http://localhost:8080/profile/update', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token // Send JWT token in Authorization header
+                },
+                body: JSON.stringify(requestData) // Convert form data to JSON
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = 'cmpDashboard.html'; // Redirect after profile update
+                } else {
+                    alert('Failed to update profile');
+                }
+            })
+            .catch(error => {
+                console.error('Error during profile update:', error);
+                alert('Error updating profile');
+            });
+        }
+    
+        // Function to handle logout
+        function logout() {
+            console.log("Logging out");
+            localStorage.removeItem('jwt'); // Or sessionStorage.removeItem('jwt');
+            window.location.href = 'login.html';
+        }
+    
+        // Event listeners for form submission and logout
+        document.querySelector('form').addEventListener('submit', handleFormSubmit);
+        document.querySelector('.lg').addEventListener('click', logout);
+    </script>
 </body>
 
 </html>

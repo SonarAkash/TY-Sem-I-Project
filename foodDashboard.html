@@ -227,7 +227,8 @@
         <div class="header-links">
             <a href="#">About</a>
             <a href="#">Contact</a>
-            <button class="lg">Logout</button>
+            <button class="lg" onclick="logout()">Logout</button>
+
         </div>
     </div>
 
@@ -250,46 +251,8 @@
             <!-- Dashboard List Section -->
             <div class="content">
                 <h2>Food Waste List</h2>
-                <div class="waste-list">
-                    <!-- Sample list items -->
-                    <div class="waste-item">
-                        <div class="waste-info">
-                            <h3>Expired Dairy Products</h3>
-                            <p>Quantity: 25 kg</p>
-                            <p>Date: 2024-10-20</p>
-                        </div>
-                        <div class="waste-actions">
-                            <a href="update.html">
-                            <button class="update-btn">Update</button>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="waste-item">
-                        <div class="waste-info">
-                            <h3>Vegetable Trimmings</h3>
-                            <p>Quantity: 15 kg</p>
-                            <p>Date: 2024-10-19</p>
-                        </div>
-                        <div class="waste-actions">
-                            <a href="update.html">
-                            <button class="update-btn">Update</button>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="waste-item">
-                        <div class="waste-info">
-                            <h3>Bread and Pastries</h3>
-                            <p>Quantity: 8 kg</p>
-                            <p>Date: 2024-10-18</p>
-                        </div>
-                        <div class="waste-actions">
-                            <a href="update.html">
-                            <button class="update-btn">Update</button>
-                            </a>
-                        </div>
-                    </div>
+                <div class="waste-list" id="waste-list">
+                    <!-- Waste items will be dynamically loaded here -->
                 </div>
             </div>
         </div>
@@ -322,6 +285,107 @@
     <div class="footer-line"></div>
 
     <div class="copyright">&copy; 2024 COMPANY. All rights reserved.</div>
+
+    <script>
+        // Function to fetch the booked items
+        async function fetchBookedItems() {
+            try {
+                // Retrieve the JWT token from localStorage (or sessionStorage)
+                const token = localStorage.getItem('jwt'); // Or sessionStorage.getItem('jwt')
+    
+                if (!token) {
+                    // If no token is found, redirect to the login page
+                    alert('Please log in first');
+                    window.location.href = 'login.html'; // Redirect to login page
+                    return;
+                }
+    
+                const response = await fetch("http://localhost:8080/generator/bookings", {
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Send JWT token in Authorization header
+                    }
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    const wasteListContainer = document.getElementById("waste-list");
+    
+                    // Clear existing content
+                    wasteListContainer.innerHTML = "";
+    
+                    // Loop through the fetched data
+                    data.forEach(item => {
+                        if (item.status !== "COMPLETED") { // Only show items that are not completed
+                            const wasteItem = document.createElement("div");
+                            wasteItem.classList.add("waste-item");
+                            
+                            wasteItem.innerHTML = `
+                                <div class="waste-info">
+                                    <h3>${item.type}</h3>
+                                    <p>Quantity: ${item.quantity} kg</p>
+                                    <p>Date: ${item.bookingDate}</p>
+                                </div>
+                                <div class="waste-actions">
+                                    <button class="update-btn" onclick="markAsCompleted(${item.id})">Done</button>
+                                </div>
+                            `;
+                            
+                            wasteListContainer.appendChild(wasteItem);
+                        }
+                    });
+                } else {
+                    alert("Failed to fetch waste bookings.");
+                }
+            } catch (error) {
+                console.error('Error fetching waste bookings:', error);
+            }
+        }
+    
+        // Function to mark an item as completed
+        async function markAsCompleted(orderId) {
+            try {
+                // Retrieve the JWT token from localStorage (or sessionStorage)
+                const token = localStorage.getItem('jwt'); // Or sessionStorage.getItem('jwt')
+    
+                if (!token) {
+                    // If no token is found, redirect to the login page
+                    alert('Please log in first');
+                    window.location.href = 'login.html'; // Redirect to login page
+                    return;
+                }
+    
+                const response = await fetch(`http://localhost:8080/generator/complete-order/${orderId}`, {
+                    method: "PATCH",
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Send JWT token in Authorization header
+                    }
+                });
+    
+                if (response.ok) {
+                    // Refresh the list after the status is updated
+                    fetchBookedItems();
+                } else {
+                    alert("Failed to mark the order as completed.");
+                }
+            } catch (error) {
+                console.error('Error completing order:', error);
+            }
+        }
+    
+        // Function to handle logout
+        function logout() {
+            // Remove the JWT token from localStorage (or sessionStorage)
+            localStorage.removeItem('jwt'); // Or sessionStorage.removeItem('jwt');
+    
+            // Redirect to login page after logging out
+            window.location.href = 'login.html';
+        }
+    
+        // Fetch the waste bookings when the page loads
+        document.addEventListener("DOMContentLoaded", fetchBookedItems);
+    </script>
+    
 </body>
 
 </html>
